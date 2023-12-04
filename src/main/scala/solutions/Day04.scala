@@ -9,10 +9,7 @@ class Day04(input: Seq[String], samp: Boolean) extends Solution(input, samp):
       (process(xs).toList, process(ys).toSet)
     }
   override def run =
-    val scores =
-      for (xs, ys) <- lines
-      yield pow(2, xs.count(ys) - 1).toInt
-    scores.sum
+    (for (xs, ys) <- lines yield pow(2, xs.count(ys) - 1).toInt).sum
 
   override def run2 =
     val as = Array.fill[Int](lines.size)(0)
