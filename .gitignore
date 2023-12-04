@@ -1,7 +1,7 @@
 #AOC specific
-./input.txt
-./POutput.txt
-./sample.txt
+input.txt
+POutput.txt
+sample.txt
 # macOS
 .DS_Store
 
