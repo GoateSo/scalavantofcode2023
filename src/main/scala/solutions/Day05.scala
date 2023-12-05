@@ -29,8 +29,9 @@ class Day05(input: Seq[String], samp: Boolean) extends Solution(input, samp):
         // for each range, find all mappings that overlap with it, and add those to the list
         xs.flatMap { cur =>
           val ms =
-            for Array(a, b, c) <- map if cur >= b && cur < b + c
-            yield a + (cur - b)
+            for Array(d, s, len) <- map if cur >= s && cur < s + len
+            yield d + (cur - s)
+          // in case no mapping
           if ms.isEmpty then List(cur) else ms
         }
       }
@@ -67,8 +68,8 @@ class Day05(input: Seq[String], samp: Boolean) extends Solution(input, samp):
             l = math.max(l, math.min(r + 1, rb + 1)) // update left value
             ret
           }
-          val li = nrangs.toList.filter((a, b) => a <= b)
-          if li.isEmpty then List((a, r)) else li
+          // in case no mapping
+          if nrangs.isEmpty then List((a, r)) else nrangs
         }
       }
       .map(_._1)
