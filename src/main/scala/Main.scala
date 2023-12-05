@@ -14,7 +14,7 @@ import fastparse.internal.Util
 
   println(emph("[sample]"))
   Utils.write("[part 1]:")
-  val s2 = Day02(sampleInputs, true)
+  val s2 = Day05(sampleInputs, true)
   println(s"${GREEN}part 1: $RESET")
   println(ans(s2.run.toString))
   Utils.write("+".repeat(120))
@@ -26,7 +26,7 @@ import fastparse.internal.Util
 
   println(emph("[real]"))
   Utils.write("[part 1]:")
-  val s = Day02(realInputs, false)
+  val s = Day05(realInputs, false)
   println(s"${GREEN}part 1: $RESET")
   println(ans(s.run.toString))
   Utils.write("+".repeat(120))
