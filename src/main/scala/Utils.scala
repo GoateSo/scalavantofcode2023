@@ -15,22 +15,22 @@ object Utils:
   // alphanbetic regex shorthand
   val al = "[a-zA-Z]".r
   // interval/ range ops
-  type Range = (Long, Long) | Unit 
+  type Range = (Long, Long) | Unit
   import Range.*
   extension (r: Range)
     def _1 = r match
-      case () => throw Exception("get in empty range")
-      case (a,b) => a
+      case ()     => throw Exception("get in empty range")
+      case (a, b) => a
     def _2 = r match
-      case () => throw Exception("get in empty range")
-      case (a,b) => b
-    
+      case ()     => throw Exception("get in empty range")
+      case (a, b) => b
+
     def get: (Long, Long) = r match
-      case (a,b) => (a,b)
-      case () => throw Exception("empty range")
-    
+      case (a, b) => (a, b)
+      case ()     => throw Exception("empty range")
+
     def map(f: Long => Long) = r match
-      case ()              => ()
+      case ()            => ()
       case (left, right) => (f(left), f(right))
 
     infix def &(that: Range) = (r, that) match
@@ -49,7 +49,7 @@ object Utils:
             // left one TODO
             // right one
           )
-  final val empty: Range             =  ()
+  final val empty: Range             = ()
   def range(a: Long, b: Long): Range = if a > b then () else (a, b)
   def range(a: Int, b: Int): Range   = if a > b then () else (a, b)
 
@@ -196,8 +196,15 @@ object Utils:
 
   // shorthands
   extension (i: Int)
-    def toBin = i.toBinaryString
-    def toHex = i.toHexString
+    def toBin                  = i.toBinaryString
+    def toHex                  = i.toHexString
+    infix def +(that: Boolean) = i + (if that then 1 else 0)
+    infix def -(that: Boolean) = i - (if that then 1 else 0)
+  extension (i: Long)
+    def toBin                  = i.toBinaryString
+    def toHex                  = i.toHexString
+    infix def +(that: Boolean) = i + (if that then 1 else 0)
+    infix def -(that: Boolean) = i - (if that then 1 else 0)
 
   /**
    * inclusive random integer

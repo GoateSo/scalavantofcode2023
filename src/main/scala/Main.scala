@@ -3,33 +3,24 @@ import scala.io.AnsiColor.*
 import os.*
 import utils.Utils
 import fastparse.internal.Util
+import fansi.Color.{Green, Red, Blue}
+import fansi.{Underlined, Bold}
+
+def emph(s: String) =
+  Blue(s).overlay(Underlined.On).overlay(Bold.On)
+
+def output(soln: Solution) =
+  println(Green("part 1:"))
+  println(Red(soln.run.toString))
+  Utils.write("+".repeat(120))
+  Utils.write("[part 2]:")
+  println(Green(s"part 2:"))
+  println(Red(soln.run2.toString))
 
 @main def main: Unit =
-  val x               = println(pwd)
-  val realInputs      = os.read.lines(pwd / "input.txt")
-  val sampleInputs    = os.read.lines(pwd / "sample.txt")
-  def emph(s: String) = s"$BOLD$UNDERLINED$BLUE$s$RESET"
-  def ans(s: String)  = s"$RED$s$RESET"
   os.write.over(pwd / "POutput.txt", "")
-
   println(emph("[sample]"))
-  Utils.write("[part 1]:")
-  val s2 = Day05(sampleInputs, true)
-  println(s"${GREEN}part 1: $RESET")
-  println(ans(s2.run.toString))
-  Utils.write("+".repeat(120))
-  Utils.write("[part 2]:")
-  println(s"${GREEN}part 2: $RESET")
-  println(ans(s2.run2.toString))
-
+  output(Day06(os.read.lines(pwd / "sample.txt"), true))
   Utils.write("~".repeat(120))
-
   println(emph("[real]"))
-  Utils.write("[part 1]:")
-  val s = Day05(realInputs, false)
-  println(s"${GREEN}part 1: $RESET")
-  println(ans(s.run.toString))
-  Utils.write("+".repeat(120))
-  Utils.write("[part 2]:")
-  println(s"${GREEN}part 2: $RESET")
-  println(ans(s.run2.toString))
+  output(Day06(os.read.lines(pwd / "input.txt"), false))

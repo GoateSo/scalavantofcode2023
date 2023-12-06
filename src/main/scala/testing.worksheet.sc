@@ -1,7 +1,8 @@
 import utils.Utils.*
+import math.*
+import os.*
 
+var fname = "sample.txt"
+// fname = "input.txt"
 
-val rang = range(1,5)
-val r2 = range(5,1)
-val t3 = rang.get
-println(r2)
+val lines = os.read.lines(os.pwd / fname)
