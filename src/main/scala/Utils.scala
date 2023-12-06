@@ -14,6 +14,46 @@ object Utils:
   type Bool = Boolean
   // alphanbetic regex shorthand
   val al = "[a-zA-Z]".r
+  // interval/ range ops
+  type Range = (Long, Long) | Unit 
+  import Range.*
+  extension (r: Range)
+    def _1 = r match
+      case () => throw Exception("get in empty range")
+      case (a,b) => a
+    def _2 = r match
+      case () => throw Exception("get in empty range")
+      case (a,b) => b
+    
+    def get: (Long, Long) = r match
+      case (a,b) => (a,b)
+      case () => throw Exception("empty range")
+    
+    def map(f: Long => Long) = r match
+      case ()              => ()
+      case (left, right) => (f(left), f(right))
+
+    infix def &(that: Range) = (r, that) match
+      case ((), _) | (_, ()) => ()
+      case ((l1, r1), (l2, r2)) =>
+        if l1 > r2 || l2 > r1 then ()
+        else Some(max(l1, l2), min(r1, r2))
+    // subtract range from range -- possibly break into left and right (as a list)
+    infix def -(that: Range) = (r, that) match
+      case ((), _) => List(())
+      case (_, ()) => List(r)
+      case ((l1, r1), (l2, r2)) =>
+        if l1 > r2 || l2 > r1 then List(r) // doesn't intersect
+        else
+          List(
+            // left one TODO
+            // right one
+          )
+  final val empty: Range             =  ()
+  def range(a: Long, b: Long): Range = if a > b then () else (a, b)
+  def range(a: Int, b: Int): Range   = if a > b then () else (a, b)
+
+  // surroundings of value in grid
   opaque type Surrounding <: Seq[(Int, Int)] = List[(Int, Int)]
   // format: off
   def surrounding(i : Int, j: Int): Surrounding =

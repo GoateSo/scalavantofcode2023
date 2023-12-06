@@ -5,6 +5,7 @@ lazy val root = project
   .settings(
     name := "scalavantofcode2023",
     version := "0.1.0-SNAPSHOT",
+    fork := true,
     scalaVersion := scala3Version,
     scalacOptions ++= Seq("-J-Xss200m"),
     libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.9.0",
