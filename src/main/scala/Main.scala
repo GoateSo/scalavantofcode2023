@@ -9,7 +9,7 @@ import fansi.{Underlined, Bold}
 def emph(s: String) =
   Blue(s).overlay(Underlined.On).overlay(Bold.On)
 
-def output(soln: Solution) =
+inline def output(soln: Solution) =
   println(Green("part 1:"))
   println(Red(soln.run.toString))
   Utils.write("+".repeat(120))
@@ -17,10 +17,13 @@ def output(soln: Solution) =
   println(Green(s"part 2:"))
   println(Red(soln.run2.toString))
 
-@main def main: Unit =
+inline def test(day: (Seq[String], Boolean) => Solution) = 
   os.write.over(pwd / "POutput.txt", "")
   println(emph("[sample]"))
-  output(Day06(os.read.lines(pwd / "sample.txt"), true))
+  output(day(os.read.lines(pwd / "sample.txt"), true))
   Utils.write("~".repeat(120))
   println(emph("[real]"))
-  output(Day06(os.read.lines(pwd / "input.txt"), false))
+  output(day(os.read.lines(pwd / "input.txt"), false))
+
+@main def main: Unit =
+  test(Day05.apply(_,_))
