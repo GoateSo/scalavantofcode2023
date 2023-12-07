@@ -17,7 +17,7 @@ inline def output(soln: Solution) =
   println(Green(s"part 2:"))
   println(Red(soln.run2.toString))
 
-inline def test(day: (Seq[String], Boolean) => Solution) = 
+inline def test(day: (Seq[String], Boolean) => Solution) =
   os.write.over(pwd / "POutput.txt", "")
   println(emph("[sample]"))
   output(day(os.read.lines(pwd / "sample.txt"), true))
@@ -26,4 +26,4 @@ inline def test(day: (Seq[String], Boolean) => Solution) =
   output(day(os.read.lines(pwd / "input.txt"), false))
 
 @main def main: Unit =
-  test(Day05.apply(_,_))
+  test(Day07.apply(_, _))
