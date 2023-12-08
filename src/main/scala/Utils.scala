@@ -161,6 +161,8 @@ object Utils:
         }
       )
 
+  // extension [T <: Number](xs: Seq[T])
+
   extension [T](strs: Seq[T])
     // split by predicate or string
     def splitBy(p: T => Boolean) = strs.foldLeft(Seq(Seq.empty[T])) {
@@ -184,15 +186,18 @@ object Utils:
   inline def write(xs: Any*) =
     os.write.append(pwd / "POutput.txt", (xs mkString " ") + "\n")
 
-  def euclid(x: Int, y: Int): Int =
+  import math.Integral.Implicits.infixIntegralOps
+  def euclid[T: Integral](x: T, y: T): T =
     if y == 0
     then x
     else euclid(y, x % y)
+  def lcm[T: Integral](x: T, y: T): T = x * y / euclid(x, y)
 
-  extension (xs: List[Int])
+  extension [T: Integral](xs: List[T])
     def gcd    = xs.reduce(euclid)
+    def lcm    = xs.reduce((a, b) => a * b / euclid(a, b))
     def median = xs.sorted.apply(xs.size / 2)
-    def mean   = xs.sum / xs.size.toDouble
+  extension (xs: List[Double]) def mean = xs.sum / xs.size
 
   // shorthands
   extension (i: Int)
