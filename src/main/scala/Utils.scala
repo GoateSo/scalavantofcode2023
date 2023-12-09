@@ -78,6 +78,25 @@ object Utils:
   // exponentiation
   extension (n: Double) def **(m: Double) = Math.pow(n, m)
 
+  /**
+   * performs extended euclidean algorithm on a and b to find GCD
+   *
+   * @param a
+   *   integer input 1
+   * @param b
+   *   integer input 2
+   * @return
+   *   triplet (g,x,y) such that g = a*x + b*y
+   */
+  def egcd(a: Int, b: Int): (Int, Int, Int) =
+    if a == 0 then (b, 0, 1)
+    else
+      val (g, x, y) = egcd(b % a, a)
+      (g, y - (b / a) * x, x)
+  def modInv(a: Int, m: Int): Int =
+    val (g, x, y) = egcd(a, m)
+    if g == 1 then (x + m) % m else 0
+
   // random string stuff kinda like in lua's string library
   extension (str: String)
     inline def sub(start: Int, end: Int): String =
