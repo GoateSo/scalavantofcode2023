@@ -13,6 +13,6 @@ class Day06(input: Seq[String], samp: Boolean) extends Solution(input, samp):
     val l     = ((t - sdisc) / 2).ceil.toLong
     r - l + 1 - (l * (t - l) == d) - (r * (t - r) == d)
 
-  def run = ds.zip(ts).map(calc).product
+  def run = ds.zip(ts).prodBy(calc)
 
   def run2 = calc(ds.mkString.toLong, ts.mkString.toLong)

@@ -4,11 +4,10 @@ import scala.collection.mutable.Map
 // input is a collection of lines
 class Day02(input: Seq[String], samp: Boolean) extends Solution(input, samp):
   // break down into arrays of (count, color) pairs
-  val games = input map: x =>
-    for
-      line  <- x(".+?: (.+)".r)(0).split("; ")
-      query <- line.split(", ")
-    yield query
+  val games = for x <- input yield for
+    line  <- x(".+?: (.+)".r)(0).split("; ")
+    query <- line.split(", ")
+  yield query
 
   override def run =
     val maxCnt = Map('r' -> 12, 'g' -> 13, 'b' -> 14)

@@ -8,6 +8,7 @@ lazy val root = project
     fork         := true,
     scalaVersion := scala3Version,
     run / javaOptions += "-Xmx8G",
+    scalacOptions += "-deprecation",
     libraryDependencies += "com.lihaoyi" %% "os-lib"    % "0.9.0",
     libraryDependencies += "com.lihaoyi" %% "fastparse" % "3.0.2",
     libraryDependencies += "com.lihaoyi" %% "pprint"    % "0.8.1",

@@ -61,9 +61,9 @@ object Utils:
            (i,j-1),              (i,j+1),
            (i+1,j-1), (i+1,j), (i+1,j+1))
   def neighbors(i: Int, j: Int): Surrounding = 
-    List(             (i - 1, j), 
-          (i + 1, j),             (i, j + 1),
-                      (i, j - 1)            )
+    List(           (i - 1, j), 
+          (i, j-1),             (i, j + 1),
+                    (i + 1, j)            )
   // format: on
   extension (sur: Surrounding)
     def bound(a: Int, b: Int): Surrounding =
@@ -109,10 +109,38 @@ object Utils:
     def toLong(radix: Int) = java.lang.Long.parseLong(str, radix)
     def toInt              = Integer.parseInt(str)
     def toInt(radix: Int)  = Integer.parseInt(str, radix)
-    def apply(i: Int)      = str.charAt(i)
+
+    /**
+     * apply used in context of charat
+     *
+     * @param i
+     *   index of char
+     * @return
+     *   character at given index
+     */
+    def apply(i: Int) = str.charAt(i)
+
+    /**
+     * apply used in context of "contains"
+     *
+     * @param c
+     *   character to check element relationship
+     * @return
+     *   whether the given character is contained within the string
+     */
+    def apply(c: Char) = str.contains(c)
+
+    /**
+     * apply used in context of checking regex matching
+     *
+     * @param r
+     *   regex to match on string
+     * @return
+     *   either subgroups if any are present or whole matched string if there
+     *   are no capture groups
+     */
     def apply(r: Regex) =
-      val mat = r.findFirstMatchIn(str)
-      mat map (m =>
+      r.findFirstMatchIn(str) map (m =>
         val sg = m.subgroups
         if sg.isEmpty then List(m.matched)
         else sg
@@ -148,6 +176,17 @@ object Utils:
         .getOrElse("")
     def findOrElse(reg: Regex, back: String): String =
       reg.findFirstIn(str).getOrElse(back)
+
+    /**
+     * global substitution using function mapping to substitute values
+     *
+     * @param reg
+     *   regex to match
+     * @param f
+     *   function to map
+     * @return
+     *   resultant string
+     */
     def gsub(reg: Regex, f: Seq[String] => String) =
       reg.replaceAllIn(
         str,
@@ -180,31 +219,46 @@ object Utils:
         }
       )
 
-  // extension [T <: Number](xs: Seq[T])
-
-  extension [T](strs: Seq[T])
-    // split by predicate or string
-    def splitBy(p: T => Boolean) = strs.foldLeft(Seq(Seq.empty[T])) {
+  extension [T](seq: Seq[T])
+    // numerical reductions
+    def sumBy[U: Numeric](f: T => U)  = seq.map(f).sum
+    def prodBy[U: Numeric](f: T => U) = seq.map(f).product
+    // split by predicate or value
+    def splitBy(p: T => Boolean) = seq.foldLeft(Seq(Seq.empty[T])) {
       case (acc, s) if p(s) => acc :+ Seq.empty[T]
       case (acc, s)         => acc.init :+ (acc.last :+ s)
     }
     def splitBy(v: T): Seq[Seq[T]] = splitBy(_ == v)
     // distinct, but not an iterator (so i don't forget the name)
-    def unique = strs.distinct.toSeq
+    def unique = seq.distinct.toSeq
 
-  // extension [T](grid: Seq[Seq[T]]) def columns = grid.transpose
   extension [T](grid: Seq[Seq[T]])
     def columns: Seq[Seq[T]] =
       for i <- 0 until grid(0).length yield grid.map(_(i))
-  extension (lines: Seq[String]) def chrCols = lines.map(_.toSeq).transpose
+  extension (lines: Seq[String])
+    /**
+     * get character columns of a string
+     *
+     * @return
+     *   essentially transpose of the string
+     */
+    def chrCols = lines.map(_.toSeq).transpose
 
-  def str[T](arr: Array[Array[T]], sep: String = "") =
-    arr.map(_.mkString("[", sep, "]")).mkString("\n")
+  extension [T](arr: Array[Array[T]])
+    /**
+     * converts an array grid into viewable format
+     *
+     * @param sep
+     * @return
+     */
+    def str(sep: String = "") =
+      arr.map(_.mkString("[", sep, "]")).mkString("\n")
 
   // print to file; reduce clutter
   inline def write(xs: Any*) =
     os.write.append(pwd / "POutput.txt", (xs mkString " ") + "\n")
 
+  // GCD and LCM
   import math.Integral.Implicits.infixIntegralOps
   def euclid[T: Integral](x: T, y: T): T =
     if y == 0
@@ -212,6 +266,7 @@ object Utils:
     else euclid(y, x % y)
   def lcm[T: Integral](x: T, y: T): T = x * y / euclid(x, y)
 
+  // generalized integer statistics
   extension [T: Integral](xs: List[T])
     def gcd    = xs.reduce(euclid)
     def lcm    = xs.reduce((a, b) => a * b / euclid(a, b))
@@ -250,6 +305,10 @@ object Utils:
       map(n) = arr.length - 1
       swim(arr.length - 1)
 
+    /**
+     * @return
+     *   element with lowest priority
+     */
     def top = arr(1)
 
     def pop: (T, Double) =
@@ -260,25 +319,33 @@ object Utils:
       sink(1)
       ret
 
-    def decKey(n: T, nDist: Double) =
+    /**
+     * decrease key (priority) of elem to new value
+     *
+     * @param n
+     *   element
+     * @param nDist
+     *   new priority
+     */
+    def decKey(n: T, nDist: Double): Unit =
       val i = map(n)
       arr(i) = (n, nDist)
       swim(i)
 
-    def swap(i: Int, j: Int): Unit =
+    private def swap(i: Int, j: Int): Unit =
       map(arr(i)._1) = j
       map(arr(j)._1) = i
       val n = arr(i)
       arr(i) = arr(j)
       arr(j) = n
 
-    def swim(i: Int): Unit =
+    private def swim(i: Int): Unit =
       var p = i
       while p > 1 && arr(p / 2)._2 > arr(p)._2 do
         swap(p / 2, p)
         p /= 2
 
-    def sink(i: Int): Unit =
+    private def sink(i: Int): Unit =
       val l    = i * 2
       val r    = l + 1
       var smol = i
@@ -375,26 +442,3 @@ object Utils:
         ).flatten
         g.addEdges(n, neighs)
     g
-
-  def plot(pts: (Int, Int)*): Unit =
-    val x1 = Math.min(pts.map(_._1).min, -1)
-    val y1 = Math.min(pts.map(_._2).min, -1)
-    val x2 = Math.max(pts.map(_._1).max, 6)
-    val y2 = Math.max(pts.map(_._2).max, 2)
-
-    val npts = pts.toSet
-    var sb   = new StringBuilder()
-    for y <- y2 to y1 by -1 do
-      for x <- x1 to x2 do
-        if npts.contains((x, y)) then
-          sb += '#' // pts.count(_ == (x, y)).toString
-        else if x % 5 == 0 && y % 5 == 0 then sb += '+'
-        else if x % 5 == 0 || x % 5 == 0 then sb += '|'
-        else if y == 0 then sb += '-'
-        else sb += '.'
-      sb += '\n'
-    // println(sb.toString)
-    write(sb.toString)
-    // val plt = new Plot()
-    // plt.addLinePlot("plot", x.toArray, y.toArray)
-    // plt.show()

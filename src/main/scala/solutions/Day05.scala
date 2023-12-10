@@ -17,33 +17,29 @@ class Day05(input: Seq[String], samp: Boolean) extends Solution(input, samp):
         .sortBy(_(1))                    // sort by b (starting pos)
     )
   // part 2, find minimum location treating inputs as ranges
-  def minloc(range: (Long, Long)) = // each step of the process
+  def locs(range: (Long, Long)) = // each step of the process
     mappings
       .foldLeft(List(range)) { case (xs, map) =>
         // for each range, find all mappings that overlap with it, and add those to the list
-        xs.flatMap { (a, right) =>
-          var left = a // mutable left ptr
+        xs.flatMap { (a, r) =>
+          var l = a // mutable left ptr
           val nrangs = for // get overlapping maps
-            case Array(d, lb, len) <- map if lb <= right
-            rb    = lb + len - 1
-            shift = d - lb
-            (l1, r1) <- List(
-              (
-                max(left, lb) + shift,
-                min(right, rb) + shift
-              ),             // overlap portion
-              (left, lb - 1) // left bit (might be empty)
+            Array(d, lb, len) <- map
+            rb = lb + len - 1 if lb <= r && rb >= l // actual overlap
+            sh = d - lb                             // shift amt
+            (l1, r1) <- List( // get mapped ranges (and guaranteed unmapped)
+              (max(l, lb) + sh, min(r, rb) + sh), // overlap portion
+              (l, lb - 1)                         // left bit (might be empty)
             ) if l1 <= r1
           yield
-            left = math.max(left, math.min(right, rb + 1))
-            (l1, r1)
-          if nrangs.isEmpty then List((a, right))
-          else nrangs // in case no mapping
+            l = max(l, min(r, rb + 1)) // update left ptr
+            (l1, r1)                   // yield processed range
+          // in case no mappings, return same range
+          if nrangs.nonEmpty then nrangs else List((a, r))
         }
       }
       .map(_._1)
-      .min
   override def run =
-    seeds.map(x => minloc(x, x)).min
+    seeds.flatMap(x => locs(x, x)).min
   override def run2 = // minimum of starts (1st elem)
-    seeds.sliding(2, 2).map { case Array(a, b) => minloc(a, a + b - 1) }.min
+    seeds.grouped(2).flatMap { case Array(a, b) => locs(a, a + b - 1) }.min

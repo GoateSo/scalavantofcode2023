@@ -30,8 +30,8 @@ class Day03(input: Seq[String], samp: Boolean) extends Solution(input, samp):
 
   override def run =
     // sum of part numbers
-    mapping.map(_._2.sum).sum
+    mapping.sumBy(_._2.sum)
 
   override def run2 =
     // sum of pnum1 * pnum2 next to gears
-    mapping.filter(x => x._1 == '*' && x._2.size == 2).map(_._2.product).sum
+    mapping.filter(x => x._1 == '*' && x._2.size == 2).sumBy(_._2.product)
