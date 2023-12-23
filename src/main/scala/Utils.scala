@@ -242,7 +242,7 @@ object Utils:
      * @return
      *   essentially transpose of the string
      */
-    def chrCols = lines.map(_.toSeq).transpose
+    def chrCols = lines.map(_.toSeq).transpose.map(_.mkString)
 
   extension [T](arr: Array[Array[T]])
     /**
