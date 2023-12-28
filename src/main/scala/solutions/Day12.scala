@@ -1,7 +1,6 @@
 package solutions
 import scala.collection.mutable.HashMap
 import utils.Utils.*
-
 class Day12(input: Seq[String], samp: Boolean) extends Solution(input, samp):
   // monke top down soln
   val memo = HashMap[(List[Char], List[Int], Bool), Long]()
@@ -37,12 +36,9 @@ class Day12(input: Seq[String], samp: Boolean) extends Solution(input, samp):
     onsens.map(x => five.map(_ => x).reduceRight(_ ::: '?' :: _))
   def run = onsens
     .zip(lens)
-    .map(solns(_, _, false))
-    .sum
+    .sumBy(solns(_, _, false))
   def run2 = fullOnsens
     .zip(fullLens)
-    .map { (a, b) =>
+    .sumBy: (a, b) =>
       memo.clear()
       solns(a, b, false)
-    }
-    .sum

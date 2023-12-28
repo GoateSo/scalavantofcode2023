@@ -6,6 +6,7 @@ import scala.util.matching.Regex.Match
 import scala.collection.mutable.{ArrayBuffer, HashMap}
 import os._
 import scala.compiletime.ops.string
+import scala.reflect.ClassTag
 
 /**
  * collection of useful utility methods & shorthands
@@ -73,7 +74,7 @@ object Utils:
   extension (x: Long) def +%(y: Long): Int = Math.floorMod(x, y).toInt
 
   extension [T, U](p: (T, U))
-    def bimap(f: T => U, g: U => T) = (f(p._1), g(p._2))
+    def bimap[V, W](f: T => V, g: U => W): (V, W) = (f(p._1), g(p._2))
 
   // exponentiation
   extension (n: Double) def **(m: Double) = Math.pow(n, m)
@@ -231,6 +232,22 @@ object Utils:
     def splitBy(v: T): Seq[Seq[T]] = splitBy(_ == v)
     // distinct, but not an iterator (so i don't forget the name)
     def unique = seq.distinct.toSeq
+  extension [T: ClassTag](arr: Array[T])
+    // numerical reductions
+    def sumBy[U: Numeric: ClassTag](f: T => U) =
+      val num = summon[Numeric[U]]
+      arr.foldLeft(num.zero)((acc, v) => num.plus(acc, f(v)))
+    def prodBy[U: Numeric: ClassTag](f: T => U) =
+      val num = summon[Numeric[U]]
+      arr.foldLeft(num.zero)((acc, v) => num.times(acc, f(v)))
+    // split by predicate or value
+    def splitBy(p: T => Boolean) = arr.foldLeft(Seq(Seq.empty[T])) {
+      case (acc, s) if p(s) => acc :+ Seq.empty[T]
+      case (acc, s)         => acc.init :+ (acc.last :+ s)
+    }
+    def splitBy(v: T): Seq[Seq[T]] = splitBy(_ == v)
+    // distinct, but not an iterator (so i don't forget the name)
+    def unique = arr.distinct.toSeq
 
   extension [T](grid: Seq[Seq[T]])
     def columns: Seq[Seq[T]] =
@@ -297,8 +314,13 @@ object Utils:
     var arr = ArrayBuffer(null, (xs, priority))
     val map = HashMap(xs -> 1)
 
+    def toList = arr.drop(1).toList
+
     override def toString =
-      arr.mkString("[", ",", "]") ++ "\n" ++ map.mkString("[", ",", "]")
+      arr
+        .drop(1)
+        .sortBy(_._2)
+        .mkString("[", ",", "]") // ++ "--r" ++ map.mkString("[", ",", "]")
 
     def +=(n: T, priority: Double): Unit =
       arr += ((n, priority))
@@ -328,9 +350,11 @@ object Utils:
      *   new priority
      */
     def decKey(n: T, nDist: Double): Unit =
-      val i = map(n)
-      arr(i) = (n, nDist)
-      swim(i)
+      val i         = map(n)
+      val (_, dist) = arr(i)
+      if nDist < dist then
+        arr(i) = (n, nDist)
+        swim(i)
 
     private def swap(i: Int, j: Int): Unit =
       map(arr(i)._1) = j
@@ -356,7 +380,7 @@ object Utils:
         sink(smol)
   end MinPq
   // digraph with weights
-  class Digraph[T] {
+  class Digraph[T]:
     var adj = HashMap[T, Set[(T, Double)]]()
     def addEdge(from: T, to: T, weight: Double = 1) =
       adj(from) = adj.getOrElse(from, Set.empty[(T, Double)]) + ((to, weight))
@@ -409,9 +433,8 @@ object Utils:
               pq += (e, newDist)
       retval
     override def toString(): String = adj.mkString("\n")
+  end Digraph
 
-    // def pathNeg(start : T, end : T)
-  }
   def toDigraph[T](arr: Array[Array[T]]): Digraph[T] =
     // constuct digraph between array elements and their 4 neighors in grid
     val g = Digraph[T]()
