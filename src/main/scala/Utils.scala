@@ -1,12 +1,12 @@
 package utils
-import scala.util._
+import scala.util.{boundary, Random}, boundary.break
 import scala.math._
 import scala.util.matching._
 import scala.util.matching.Regex.Match
 import scala.collection.mutable.{ArrayBuffer, HashMap}
 import os._
-import scala.compiletime.ops.string
 import scala.reflect.ClassTag
+import scala.collection.mutable.ListBuffer
 
 /**
  * collection of useful utility methods & shorthands
@@ -322,6 +322,8 @@ object Utils:
         .sortBy(_._2)
         .mkString("[", ",", "]") // ++ "--r" ++ map.mkString("[", ",", "]")
 
+    def isEmpty  = arr.size <= 1
+    def nonEmpty = arr.size > 1
     def +=(n: T, priority: Double): Unit =
       arr += ((n, priority))
       map(n) = arr.length - 1
@@ -465,3 +467,57 @@ object Utils:
         ).flatten
         g.addEdges(n, neighs)
     g
+
+  // discrete ranges, so ((1, 5), (6, 7)) -> (1,7)
+  // possibly turn into an interval tree down the line
+  class Ranges(intervals: (Int, Int)*) {
+    private var internal_arr =
+      intervals.to(ArrayBuffer) // : ArrayBuffer[(Int, Int)]
+    internal_arr.sortInPlaceBy(_._1)
+    internal_sort()
+    // subtract range from collection of intervals
+    def -(range: (Int, Int)) =
+      if internal_arr.isEmpty then this
+      else
+        val (rl, rr)    = range
+        var (narr, rem) = internal_arr.span(_._2 < rl)
+        // println((narr, rem))
+        boundary:
+          while rem.nonEmpty do
+            val (l, r) = rem.remove(0)
+            // println((l, r))
+            // println((rl, rr))
+            if l < rl then narr.addOne((l, math.min(rl - 1, r)))
+            if r > rr then
+              narr.addOne((math.max(rr + 1, l), r))
+              break()
+            rem.dropWhileInPlace((l, r) => r <= rr && l >= rl)
+        Ranges(narr.toSeq: _*)
+
+    def |(that: Ranges) =
+      val cpy = internal_arr.clone()
+      cpy.appendAll(that.internal_arr)
+      Ranges(cpy.toSeq: _*)
+
+    def +(range: (Int, Int)) =
+      val cpy = internal_arr.clone()
+      cpy.prepend(range)
+      Ranges(cpy.toSeq: _*)
+
+    def count: Int =
+      internal_arr.map((l, r) => r - l + 1).sum
+
+    override def toString(): String =
+      internal_arr.mkString("Ranges[", ", ", "]")
+
+    private def internal_sort() =
+      if internal_arr.nonEmpty then
+        val narr = ArrayBuffer[(Int, Int)]()
+        narr.addOne(internal_arr.head)
+        for (i, j) <- internal_arr.tail if i <= j do
+          val (pi, pj) = narr.remove(narr.size - 1)
+          if pj < i - 1 then narr ++= List((pi, pj), (i, j))
+          else narr ++= List((pi, math.max(pj, j)))
+        // narr.dropWhileInPlace(_._1)
+        internal_arr = narr
+  }

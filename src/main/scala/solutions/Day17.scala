@@ -11,13 +11,11 @@ class Day17(input: Seq[String], samp: Boolean) extends Solution(input, samp):
   def path(start: Int, end: Int) =
     val pq = MinPq[((Int, Int), Boolean)](((0, 0), true), 0)
     pq += (((0, 0), false), 0)
-    // TODO: ideas
-    // seperate dist for vertical and horizontal?
+    // seperate dist for vertical and horizontal
     val hd = Array.fill[Int](rows, cols)(1_000_000)
     val vd = Array.fill[Int](rows, cols)(1_000_000)
     hd(0)(0) = 0
     vd(0)(0) = 0
-
     boundary: // alternative Hori-Vert dijkstra
       while pq.arr.length > 1 do
         val (((i, j), isHoriz), nDist) = pq.pop
@@ -27,9 +25,10 @@ class Day17(input: Seq[String], samp: Boolean) extends Solution(input, samp):
           // get direction of travel
           // add stuff to all 2 other directions
           //  go thru each of the possible lengths in ench of the directions
-          val nds =
-            if isHoriz then List((-1, 0), (1, 0)) else List((0, -1), (0, 1))
-          for (a, b) <- nds
+          for (a, b) <-
+              if isHoriz
+              then List((-1, 0), (1, 0))
+              else List((0, -1), (0, 1))
           do
             var dsum = nDist // accum for distance so far
             for
